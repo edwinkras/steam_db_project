@@ -70,4 +70,4 @@ CREATE TABLE profile
     PRIMARY KEY (uid,games_owned),
     FOREIGN KEY (uid) REFERENCES user_account (uid),
     FOREIGN KEY (games_owned) REFERENCES user_account (games_owned)
-)
+);
