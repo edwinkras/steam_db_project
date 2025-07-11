@@ -41,5 +41,5 @@ CREATE TABLE friends
     username TEXT,
     friends_with INTEGER, -- this is for the user_id to be called (with a join)
     friends_since INTEGER NOT NULL
-)
+);
 
