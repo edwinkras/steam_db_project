@@ -2,7 +2,7 @@
 
 # Project made by: Edwin
 
-# General Description
+## 1. General Description
 
 In this project, I decided to go with Steam due to my knowledge of it as I've been a user of it for years. The goal here with the database is to represent how the system works (and how different features are connected with each other, hence the relationships). The main functionalities that I’ve needed to take care of are the very fundamentals of Steam, also the main entities I’ve added: 
  
@@ -22,7 +22,7 @@ In this project, I decided to go with Steam due to my knowledge of it as I've be
 
 - Order and Payment Management: Tracks user purchases, including subtotal, taxes, and payment methods.
 
-# Logical Model
+## 2. a) Logical Model
 
 ```plantuml
 @startuml
@@ -155,7 +155,7 @@ Gift "*" -- "1" UserAccount : receiver
 @enduml
 ```
 
-# Physical Model
+## b) Physical Model
 
 ```plantuml
 @startuml
