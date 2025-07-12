@@ -62,3 +62,10 @@ VALUES (1,'Mortal Kombat 1'),
        (2,'Resident Evil 4'),
        (3,'DOOM Eternal'),
        (4,'Tekken 8');
+
+INSERT INTO login_info(uid, login_name, password, last_entered)
+VALUES (1,'alexKossa','Gola41!','2025-06-28'),
+       (2,'kordrole','haloisthebest','2025-07-01'),
+       (3,'JohnMarton','Arthur201','2025-07-04'),
+       (4,'LeonidVaporo','S@bway3!','2025-06-30');
+
