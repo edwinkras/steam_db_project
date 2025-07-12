@@ -69,3 +69,6 @@ VALUES (1,'alexKossa','Gola41!','2025-06-28'),
        (3,'JohnMarton','Arthur201','2025-07-04'),
        (4,'LeonidVaporo','S@bway3!','2025-06-30');
 
+INSERT INTO gift (uid, gid, fid)
+VALUES (1,5,7),
+       (3,8,4);
