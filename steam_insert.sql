@@ -72,3 +72,9 @@ VALUES (1,'alexKossa','Gola41!','2025-06-28'),
 INSERT INTO gift (uid, gid, fid)
 VALUES (1,5,7),
        (3,8,4);
+
+INSERT INTO wallet(uid,balance,card_information)
+VALUES (1,0.00,'4539 1488 0343 6467'),
+       (2,25.87,'3782 822463 10005'),
+       (3,0.89,'6011 1111 1111 1117'),
+       (4,100.00,'5555 5555 5555 4444');
