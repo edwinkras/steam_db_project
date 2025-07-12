@@ -2,6 +2,8 @@
 
 github link : https://github.com/edwinkras/steam_db_project.git
 
+youtube link for presentation : https://youtu.be/-fFGcLNwYSw
+
 # Project made by: Edwin
 
 ## 1. General Description
