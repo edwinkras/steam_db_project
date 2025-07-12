@@ -44,29 +44,23 @@ CREATE TABLE library
     games TEXT,
     FOREIGN KEY (uid) REFERENCES user_account (uid)
 );
-
+drop table store cascade ;
 CREATE TABLE store
 (
-    uid          INTEGER NOT NULL,
     gid          INTEGER NOT NULL,
-    name_of_game TEXT    NOT NULL,
     genre_id     INTEGER NOT NULL,
-    reviews      TEXT    NOT NULL,
     developer    TEXT    NOT NULL,
     publisher    TEXT    NOT NULL,
     price        DECIMAL(10, 2), -- due to prices being around 100 nowadays with taxes
-    PRIMARY KEY (gid, uid),
-    FOREIGN KEY (uid) REFERENCES user_account (uid),
     FOREIGN KEY (gid) REFERENCES games (gid)
 );
 
 CREATE TABLE profile
 (
     uid             INTEGER NOT NULL PRIMARY KEY,
-    name            TEXT    NOT NULL,
-    friends         INTEGER DEFAULT 0,
+    -- I'm not sure how to apply it now, I'm really sorry, friends         INTEGER DEFAULT 0,
     recent_activity TEXT,
-    games_owned     INTEGER,
+    -- games_owned     INTEGER,
     FOREIGN KEY (uid) REFERENCES user_account (uid)
 );
 
