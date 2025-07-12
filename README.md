@@ -6,7 +6,7 @@
 
 In this project, I decided to go with Steam due to my knowledge of it as I've been a user of it for years. The goal here with the database is to represent how the system works (and how different features are connected with each other, hence the relationships). The main functionalities that I’ve needed to take care of are the very fundamentals of Steam, also the main entities I’ve added: 
  
-- User Account Management – Each user has an account with login details, profile info, and a wallet for purchases. 
+- User Account Management – Each user has an account with login details, a profile, and a wallet for purchases.
 
 - Game Library System: Each user owns a personal game library, containing the games they have purchased or received. 
 
@@ -32,8 +32,16 @@ entity UserAccount {
     ---
     username : String
     password : String
-    profile : String
     online_status : string
+}
+
+entity Profile {
+    * uid : integer <<pk>> <<fk>>
+    ---
+    name : text
+    friends : integer
+    recent_activity : text
+    games_owned : integer
 }
 
 entity Library {
@@ -50,13 +58,6 @@ entity Game {
     reviews : String
     friends_played : images
     playtime : time
-}
-
-entity LibraryGame {
-  * lg_id : integer <<generated>> <<pk>>
-  ---
-  library_id : integer
-  game_id : integer
 }
 
 entity Store {
@@ -99,18 +100,13 @@ entity SharedLibrary {
     ---
     library_id : integer
     shared_library_name : String
-}
-
-entity SharedLibraryMember {
-  * member_id : integer <<generated>> <<pk>>
-  ---
-  share_id : integer
-  user_id : integer
+    owner_id : integer
 }
 
 entity Order {
     * order_id : integer <<generated>> <<pk>>
     ---
+    wallet_id : integer
     subtotal : integer
     taxes : integer
     payment_method : String
@@ -127,15 +123,8 @@ entity Gift {
     status : String
 }
 
-
 UserAccount "1" -- "1" Library : owns
-LibraryGame "*" -- "1" Game
-Library "1" -- "*" LibraryGame
-
 UserAccount "1" -- "1" Wallet : has
-
-Order "1" -- "0..*" Gift
-Wallet "1" -- "*" Order : pays
 
 UserAccount "1" -- "*" GameStatus
 UserAccount "*" -- "*" Friend
@@ -143,16 +132,21 @@ UserAccount "*" -- "*" Friend
 Game "*" -- "1" Store
 Order "*" -- "1" Store : gets from
 
-SharedLibraryMember "0..1" -- "1" UserAccount : member
 SharedLibrary "*" -- "1" UserAccount : owned by
-
-SharedLibrary "1" -- "*" SharedLibraryMember : includes
 SharedLibrary "1" -- "1" Library : shared_library_of
+
+Order "1" -- "*" Gift
+Wallet "1" -- "*" Order : pays
 
 Gift "*" -- "1" UserAccount : sender
 Gift "*" -- "1" UserAccount : receiver
 
+
+UserAccount "1" -- "1" Profile : has
+
+
 @enduml
+
 ```
 
 ## b) Physical Model
@@ -161,28 +155,32 @@ Gift "*" -- "1" UserAccount : receiver
 @startuml
 
 entity UserAccount {
-    * account_id : INT <<pk>> <<generated>>
+    * uid : INT <<pk>> <<generated>>
     ---
     username : VARCHAR(32) NOT NULL
-    login_name : VARCHAR(32) NOT NULL UNIQUE
     password : VARCHAR(64) NOT NULL
-    bio : TEXT
-    friends : TEXT
-    badge_collector : INT DEFAULT 0
-    showcase : INT DEFAULT 0
-    recent_activity : VARCHAR(255) UNIQUE
-    comments : TEXT
     online_status : VARCHAR(20) NOT NULL
 }
 
-entity Library {
-    * library_id : INT <<pk>> <<generated>>
+entity Profile {
+    * uid : INT <<pk>> <<fk>>
     ---
-    owner_id : INT <<fk>>
+    name : TEXT NOT NULL
+    friends : INTEGER DEFAULT 0
+    recent_activity : TEXT
+    games_owned : INTEGER DEFAULT 0
+}
+
+entity Library {
+    * lid : INT <<pk>> <<generated>>
+    ---
+    uid : INT <<fk>> NOT NULL
+    games : TEXT
+    games_owned : INTEGER DEFAULT 0
 }
 
 entity Game {
-    * game_id : INT <<pk>> <<generated>>
+    * gid : INT <<pk>> <<generated>>
     ---
     name : VARCHAR(100) NOT NULL
     store_page : VARCHAR(255)
@@ -191,16 +189,11 @@ entity Game {
     playtime : TIME
 }
 
-entity LibraryGame {
-    * lg_id : INT <<pk>> <<generated>>
-    ---
-    library_id : INT <<fk>>
-    game_id : INT <<fk>>
-}
-
 entity Store {
     * store_id : INT <<pk>> <<generated>>
     ---
+    uid : INT <<fk>> NOT NULL
+    gid : INT <<fk>> NOT NULL
     categories : VARCHAR(50)
     price : DECIMAL(10, 2)
     sales : VARCHAR(2)
@@ -213,7 +206,7 @@ entity Store {
 entity Wallet {
     * wallet_id : INT <<pk>> <<generated>>
     ---
-    account_id : INT <<fk>>
+    uid : INT <<fk>> NOT NULL
     balance : DECIMAL(12, 2) DEFAULT 0.00
     card_information : VARCHAR(100)
 }
@@ -221,65 +214,53 @@ entity Wallet {
 entity GameStatus {
     * status_id : INT <<pk>> <<generated>>
     ---
-    user_id : INT <<fk>>
-    game_id : INT <<fk>>
+    user_id : INT <<fk>> NOT NULL
+    game_id : INT <<fk>> NOT NULL
     mode_played : VARCHAR(50)
     game_party : VARCHAR(100)
 }
 
 entity Friend {
-    * friend_id : INT <<pk>> <<generated>>
+    * fid : INT <<pk>> <<generated>>
     ---
-    user_id : INT <<fk>>
-    friend_user_id : INT <<fk>>
+    uid : INT <<fk>> NOT NULL
+    friend_user_id : INT <<fk>> NOT NULL
     chat : TEXT
     friend_request : BOOLEAN DEFAULT FALSE
 }
 
 entity SharedLibrary {
-    * share_id : INT <<pk>> <<generated>>
+    * slid : INT <<pk>> <<generated>>
     ---
-    library_id : INT <<fk>>
+    lid : INT <<fk>> NOT NULL
     shared_library_name : VARCHAR(100)
-    owner_id : INT <<fk>>
-}
-
-entity SharedLibraryMember {
-    * member_id : INT <<pk>> <<generated>>
-    ---
-    share_id : INT <<fk>>
-    user_id : INT <<fk>>
+    owner_id : INT <<fk>> NOT NULL
 }
 
 entity Order {
-    * order_id : INT <<pk>> <<generated>>
+    * oid : INT <<pk>> <<generated>>
     ---
-    wallet_id : INT <<fk>>
+    wallet_id : INT <<fk>> NOT NULL
     subtotal : DECIMAL(12, 2)
     taxes : DECIMAL(12, 2)
     payment_method : VARCHAR(50)
-    gift_recipient : VARCHAR(255) UNIQUE
+    gift_recipient : VARCHAR(255)
     cart_amount : DECIMAL(12, 2)
 }
 
 entity Gift {
     * gift_id : INT <<pk>> <<generated>>
     ---
-    game_id : INT <<fk>>
-    sender_id : INT <<fk>>
-    receiver_id : INT <<fk>>
+    game_id : INT <<fk>> NOT NULL
+    sender_id : INT <<fk>> NOT NULL
+    receiver_id : INT <<fk>> NOT NULL
     message : TEXT
     status : VARCHAR(50)
 }
 
+UserAccount "1" -- "1" Profile : has
 UserAccount "1" -- "1" Library : owns
 UserAccount "1" -- "1" Wallet : has
-
-LibraryGame "*" -- "1" Game
-Library "1" -- "*" LibraryGame
-
-Order "1" -- "0..*" Gift
-Wallet "1" -- "*" Order : pays
 
 UserAccount "1" -- "*" GameStatus
 UserAccount "*" -- "*" Friend
@@ -287,61 +268,60 @@ UserAccount "*" -- "*" Friend
 Game "*" -- "1" Store
 Order "*" -- "1" Store : gets from
 
-SharedLibraryMember "*" -- "1" UserAccount : member
 SharedLibrary "*" -- "1" UserAccount : owned by
-
-SharedLibrary "1" -- "*" SharedLibraryMember : includes
 SharedLibrary "1" -- "1" Library : shared_library_of
+
+Order "1" -- "*" Gift
+Wallet "1" -- "*" Order : pays
 
 Gift "*" -- "1" UserAccount : sender
 Gift "*" -- "1" UserAccount : receiver
 
 @enduml
+
 ```
 
-For the main entities and relationships, I’ve made 11 (9 if we're not counting relationship tables) that connect each other in different ways but support each other in the long run:  
+- For the main entities and relationships, I have structured the database around 9 core entities that support each other and reflect the essential Steam features:
 
-1. UserAccount – Represents a Steam user. 
+- UserAccount – Represents a Steam user with login credentials and profile-related information.
 
-2. Library – Each user owns one library that holds their games. 
+- Library – Each user owns one personal game library. This entity stores game references (as text) directly within the library.
 
-3. Game – Represents individual games on the platform. 
+- Game – Represents individual games available on the platform.
 
-4. Store – Contains information like pricing, sales, and game categories. 
+- Store – Contains information about games available for purchase, including pricing, sales, categories, and developer details.
 
-5. Wallet – Each user has a wallet to manage their balance and payment methods. 
+- Wallet – Each user has a wallet managing their balance and payment methods.
 
-6. Gift – Represents games sent from one user to another. 
+- Gift – Represents games sent as gifts from one user to another.
 
-7. GameStatus – Tracks what game and mode a user is currently playing. 
+- GameStatus – Tracks which game a user is currently playing, including play mode and party details.
 
-8. Friend – Represents the friend connections between users. 
+- Friend – Models friendships between users, including friend requests and chat history.
 
-9. Order – Represents game purchases by the user. 
+- Order – Records user purchases, linking wallets, purchased games, prices, and gift information.
 
-10. SharedLibrary – Represents a shared game library a user can create. 
-
-11. SharedLibraryMember – Links users to shared libraries they are part of. 
-
-For the relationship tables, I introduced two of them that support the system: 
-
-- LibraryGame – Connects Library and Game, allowing users to own multiple games and each game to exist in multiple libraries. 
-
-- SharedLibraryMember – Connects SharedLibrary and UserAccount, modeling the Steam Family Sharing system. 
+- SharedLibrary – Represents a shared game library where a user can share their library with friends or family. 
+- It directly links to a user account, a library, and a friend, without using a separate membership table.
 
  
 
 For the relationships between the entities: 
  
 
-- A UserAccount is linked to one Library, one Wallet, many Friends, and can send and receive many Gifts. 
+- A UserAccount owns exactly one Library and one Wallet.
 
-- A Library connects to multiple Games through LibraryGame. 
+- Each Library contains a list of games owned by the user (stored as text), instead of being linked via a separate relationship table.
 
-- A Game appears in the Store, and is linked to one or more Categories. 
+- A UserAccount can have many Friends, representing friend connections and enabling chat.
 
-- A UserAccount can be a member of only one SharedLibrary at a time, matching Steam’s restriction. 
+- The GameStatus tracks which game and mode a user is currently playing, linking to both user and game.
 
-- An Order is paid for using a Wallet and gets products (games) from the Store. 
+- A Game appears in the Store, where users can view pricing, sales, and category details.
 
-- The GameStatus tracks what game a user is currently playing and with whom. 
+- Orders are placed by users through their Wallets, recording purchase details.
+
+- Gifts are sent and received between users, linking sender and receiver accounts with the gifted game.
+
+- The SharedLibrary allows a user to share their Library with a friend, linking directly the library, owner user, 
+- and the friend user in one entity without an additional linking table.
