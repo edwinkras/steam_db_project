@@ -58,4 +58,7 @@ VALUES (1, 1, 'CD Projekt Red', 'CD Projekt', 59.99),
        (12, 12, 'Konami', 'Konami', 29.99);
 
 INSERT INTO profile(uid, recent_activity)
-VALUES ()
+VALUES (1,'Mortal Kombat 1'),
+       (2,'Resident Evil 4'),
+       (3,'DOOM Eternal'),
+       (4,'Tekken 8');
